@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-export const dynamic = "force-dynamic" 
+export const dynamic = "force-dynamic"
 
 type Product = {
   id: number
@@ -11,17 +11,15 @@ type Product = {
 }
 
 async function getProducts(): Promise<Product[]> {
-  try {
-    const res = await fetch("https://fakestoreapi.com/products")
+  const res = await fetch("https://fakestoreapi.com/products", {
+    cache: "no-store",
+  })
 
-    if (!res.ok) {
-      return [] 
-    }
-
-    return await res.json()
-  } catch {
-    return [] 
+  if (!res.ok) {
+    throw new Error("API failed")
   }
+
+  return res.json()
 }
 
 export default async function ProductsPage() {
@@ -30,6 +28,10 @@ export default async function ProductsPage() {
   return (
     <div>
       <h1 className="text-4xl font-bold mb-8">All Products</h1>
+
+      {products.length === 0 && (
+        <div>No products found</div>
+      )}
 
       <div className="grid md:grid-cols-3 gap-8">
         {products.map(product => (
@@ -46,7 +48,7 @@ export default async function ProductsPage() {
               className="mx-auto object-contain h-40"
             />
 
-            <h2 className="mt-4 font-semibold line-clamp-2">
+            <h2 className="mt-4 font-semibold">
               {product.title}
             </h2>
 
