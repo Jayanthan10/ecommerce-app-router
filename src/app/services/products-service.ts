@@ -4,7 +4,7 @@ export class ProductsService extends ServiceBase {
 
   static async getProducts() {
     const response = await fetch(this.getUrl("/products"), {
-      next: { revalidate: 60 },
+      cache: "no-store", 
     })
 
     if (!response.ok) {
@@ -23,7 +23,7 @@ export class ProductsService extends ServiceBase {
     const response = await fetch(
       this.getUrl(`/products/${id}`),
       {
-        next: { revalidate: 120 },
+        cache: "no-store", 
       }
     )
 
