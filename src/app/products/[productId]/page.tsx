@@ -1,74 +1,57 @@
 import Image from "next/image"
-import AddToCartButton from "@/app/components/AddToCartButton"
+import Link from "next/link"
+
+export const dynamic = "force-dynamic" 
 
 type Product = {
   id: number
   title: string
   price: number
   image: string
-  description: string
 }
 
-type Props = {
-  params: {
-    productId: string
-  }
-}
-
-async function getProduct(id: number): Promise<Product> {
-  const res = await fetch(
-    `https://fakestoreapi.com/products/${id}`,
-    {
-      next: { revalidate: 60 },
-    }
-  )
+async function getProducts(): Promise<Product[]> {
+  const res = await fetch("https://fakestoreapi.com/products")
 
   if (!res.ok) {
-    throw new Error("Failed to fetch product")
+    throw new Error("Failed to fetch products")
   }
 
   return res.json()
 }
 
-export default async function ProductDetail({ params }: Props) {
-  const product = await getProduct(Number(params.productId))
-
-  const cartProduct = {
-    id: product.id,
-    title: product.title,
-    price: product.price,
-    image: product.image,
-  }
+export default async function ProductsPage() {
+  const products = await getProducts()
 
   return (
-    <div className="grid md:grid-cols-2 gap-10">
+    <div>
+      <h1 className="text-4xl font-bold mb-8">All Products</h1>
 
-      <Image
-        src={product.image}
-        alt={product.title}
-        width={400}
-        height={400}
-        className="object-contain"
-      />
+      <div className="grid md:grid-cols-3 gap-8">
+        {products.map(product => (
+          <Link
+            key={product.id}
+            href={`/products/${product.id}`}
+            className="border p-4 rounded-lg shadow hover:shadow-lg transition"
+          >
+            <Image
+              src={product.image}
+              alt={product.title}
+              width={200}
+              height={200}
+              className="mx-auto object-contain h-40"
+            />
 
-      <div>
-        <h1 className="text-3xl font-bold">
-          {product.title}
-        </h1>
+            <h2 className="mt-4 font-semibold line-clamp-2">
+              {product.title}
+            </h2>
 
-        <p className="text-gray-600 mt-4">
-          {product.description}
-        </p>
-
-        <p className="text-blue-600 text-2xl mt-4 font-bold">
-          ${product.price}
-        </p>
-
-        <div className="mt-6">
-          <AddToCartButton product={cartProduct} />
-        </div>
+            <p className="text-blue-600 font-bold mt-2">
+              ${product.price}
+            </p>
+          </Link>
+        ))}
       </div>
-
     </div>
   )
 }
