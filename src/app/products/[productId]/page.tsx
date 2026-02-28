@@ -1,7 +1,8 @@
-import Image from "next/image"
-import { notFound } from "next/navigation"
+"use client"
 
-export const dynamic = "force-dynamic"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import Image from "next/image"
 
 type Product = {
   id: number
@@ -11,38 +12,38 @@ type Product = {
   image: string
 }
 
-async function getProduct(id: string): Promise<Product | null> {
-  try {
-    const res = await fetch(
-      `https://fakestoreapi.com/products/${id}`,
-      { cache: "no-store" }
-    )
+export default function ProductDetailPage() {
+  const params = useParams()
+  const productId = params.productId as string
 
-    if (!res.ok) return null
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
-    const text = await res.text()
-    if (!text) return null
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const res = await fetch(
+          `https://fakestoreapi.com/products/${productId}`
+        )
 
-    const data = JSON.parse(text)
-    if (!data?.id) return null
+        if (!res.ok) throw new Error()
 
-    return data
-  } catch {
-    return null
-  }
-}
+        const data = await res.json()
+        setProduct(data)
+      } catch {
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: Promise<{ productId: string }>
-}) {
-  // ✅ IMPORTANT: unwrap params
-  const { productId } = await params
+    if (productId) fetchProduct()
+  }, [productId])
 
-  const product = await getProduct(productId)
-
-  if (!product) return notFound()
+  if (loading) return <p>Loading product...</p>
+  if (error || !product)
+    return <p className="text-red-500">Failed to load product.</p>
 
   return (
     <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
