@@ -1,6 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 
+export const revalidate = 60
+
 type Product = {
   id: number
   title: string
@@ -9,23 +11,13 @@ type Product = {
 }
 
 async function getProducts(): Promise<Product[]> {
-  try {
-    const res = await fetch(
-      "https://fakestoreapi.com/products",
-      {
-        next: { revalidate: 60 }, // ISR
-      }
-    )
+  const res = await fetch("https://fakestoreapi.com/products")
 
-    if (!res.ok) {
-      return []
-    }
-
-    return await res.json()
-  } catch (error) {
-    console.error("Fetch failed:", error)
-    return []
+  if (!res.ok) {
+    throw new Error("Failed to fetch products")
   }
+
+  return res.json()
 }
 
 export default async function ProductsPage() {
@@ -34,10 +26,6 @@ export default async function ProductsPage() {
   return (
     <div>
       <h1 className="text-4xl font-bold mb-8">All Products</h1>
-
-      {products.length === 0 && (
-        <p className="text-red-500">Failed to load products.</p>
-      )}
 
       <div className="grid md:grid-cols-3 gap-8">
         {products.map(product => (
