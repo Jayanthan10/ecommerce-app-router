@@ -1,7 +1,8 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-
-export const dynamic = "force-dynamic"
 
 type Product = {
   id: number
@@ -10,34 +11,34 @@ type Product = {
   image: string
 }
 
-async function getProducts(): Promise<Product[]> {
-  try {
-    const res = await fetch("https://fakestoreapi.com/products", {
-      cache: "no-store",
-    })
+export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
-    if (!res.ok) {
-      return []
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch("https://fakestoreapi.com/products")
+        if (!res.ok) throw new Error()
+        const data = await res.json()
+        setProducts(data)
+      } catch {
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    return await res.json()
-  } catch {
-    return []
-  }
-}
-
-export default async function ProductsPage() {
-  const products = await getProducts()
+    fetchProducts()
+  }, [])
 
   return (
     <div>
       <h1 className="text-4xl font-bold mb-8">All Products</h1>
 
-      {products.length === 0 && (
-        <p className="text-red-500">
-          Unable to load products at the moment.
-        </p>
-      )}
+      {loading && <p>Loading products...</p>}
+      {error && <p className="text-red-500">Failed to load products.</p>}
 
       <div className="grid md:grid-cols-3 gap-8">
         {products.map(product => (
