@@ -1,54 +1,51 @@
 import Image from "next/image"
-import AddToCartButton from "@/app/components/AddToCartButton"
+import { notFound } from "next/navigation"
 
-export const dynamic = "force-dynamic" 
+export const dynamic = "force-dynamic"
 
 type Product = {
   id: number
   title: string
   price: number
-  image: string
   description: string
+  image: string
 }
 
-type Props = {
-  params: {
-    productId: string
-  }
-}
-
-async function getProduct(id: number): Promise<Product | null> {
+async function getProduct(id: string): Promise<Product | null> {
   try {
     const res = await fetch(
-      `https://fakestoreapi.com/products/${id}`
+      `https://fakestoreapi.com/products/${id}`,
+      { cache: "no-store" }
     )
 
-    if (!res.ok) {
-      return null
-    }
+    if (!res.ok) return null
 
-    return await res.json()
+    const text = await res.text()
+    if (!text) return null
+
+    const data = JSON.parse(text)
+    if (!data?.id) return null
+
+    return data
   } catch {
     return null
   }
 }
 
-export default async function ProductDetail({ params }: Props) {
-  const product = await getProduct(Number(params.productId))
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ productId: string }>
+}) {
+  // ✅ IMPORTANT: unwrap params
+  const { productId } = await params
 
-  if (!product) {
-    return <div className="text-center py-10">Product not found.</div>
-  }
+  const product = await getProduct(productId)
 
-  const cartProduct = {
-    id: product.id,
-    title: product.title,
-    price: product.price,
-    image: product.image,
-  }
+  if (!product) return notFound()
 
   return (
-    <div className="grid md:grid-cols-2 gap-10">
+    <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
       <Image
         src={product.image}
         alt={product.title}
@@ -58,21 +55,17 @@ export default async function ProductDetail({ params }: Props) {
       />
 
       <div>
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-3xl font-bold mb-4">
           {product.title}
         </h1>
 
-        <p className="text-gray-600 mt-4">
+        <p className="text-gray-600 mb-6">
           {product.description}
         </p>
 
-        <p className="text-blue-600 text-2xl mt-4 font-bold">
+        <p className="text-blue-600 text-2xl font-bold">
           ${product.price}
         </p>
-
-        <div className="mt-6">
-          <AddToCartButton product={cartProduct} />
-        </div>
       </div>
     </div>
   )
