@@ -1,6 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 
+export const dynamic = "force-dynamic" 
+
 type Product = {
   id: number
   title: string
@@ -9,15 +11,17 @@ type Product = {
 }
 
 async function getProducts(): Promise<Product[]> {
-  const res = await fetch("https://fakestoreapi.com/products", {
-    next: { revalidate: 60 }, // Production-safe ISR
-  })
+  try {
+    const res = await fetch("https://fakestoreapi.com/products")
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch products")
+    if (!res.ok) {
+      return [] 
+    }
+
+    return await res.json()
+  } catch {
+    return [] 
   }
-
-  return res.json()
 }
 
 export default async function ProductsPage() {
