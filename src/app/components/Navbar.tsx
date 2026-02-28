@@ -4,8 +4,9 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useCart } from "@/app/context/CartContext"
 import { ShoppingCart } from "lucide-react"
+import { Suspense } from "react"
 
-export default function Navbar() {
+function NavbarContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { totalItems } = useCart()
@@ -23,20 +24,12 @@ export default function Navbar() {
     <nav className="bg-black sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
 
-        {/* LEFT — Logo */}
-        <Link
-          href="/"
-          className="text-2xl font-bold text-white tracking-wide"
-        >
+        <Link href="/" className="text-2xl font-bold text-white tracking-wide">
           Ecom
         </Link>
 
-        {/* CENTER — Search */}
         {pathname.startsWith("/products") && (
-          <form
-            action="/products"
-            className="flex items-center gap-2 flex-1 mx-12"
-          >
+          <form action="/products" className="flex items-center gap-2 flex-1 mx-12">
             <input
               type="text"
               name="title"
@@ -53,7 +46,6 @@ export default function Navbar() {
           </form>
         )}
 
-        {/* RIGHT — Nav Links */}
         <div className="flex gap-10 items-center text-sm">
           <Link href="/products" className={linkStyle("/products")}>
             Products
@@ -65,7 +57,6 @@ export default function Navbar() {
             Contact
           </Link>
 
-          {/* 🛒 Cart Icon */}
           <Link
             href="/cart"
             className="relative text-gray-200 hover:text-white transition"
@@ -82,5 +73,13 @@ export default function Navbar() {
 
       </div>
     </nav>
+  )
+}
+
+export default function Navbar() {
+  return (
+    <Suspense fallback={null}>
+      <NavbarContent />
+    </Suspense>
   )
 }
