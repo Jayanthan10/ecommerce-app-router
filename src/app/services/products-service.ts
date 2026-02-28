@@ -4,7 +4,7 @@ export class ProductsService extends ServiceBase {
 
   static async getProducts() {
     const response = await fetch(this.getUrl("/products"), {
-      cache: "no-store", 
+      cache: "no-store",
     })
 
     if (!response.ok) {

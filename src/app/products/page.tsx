@@ -11,9 +11,12 @@ type Product = {
 }
 
 async function getProducts(): Promise<Product[]> {
-  const res = await fetch("/api/products", {
-    cache: "no-store",
-  })
+  const res = await fetch(
+    "https://fakestoreapi.com/products",
+    {
+      cache: "no-store",
+    }
+  )
 
   if (!res.ok) {
     return []
