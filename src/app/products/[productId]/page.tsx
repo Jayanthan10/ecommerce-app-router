@@ -1,19 +1,35 @@
-import { ProductsService } from "@/app/services/products-service"
 import Image from "next/image"
 import AddToCartButton from "@/app/components/AddToCartButton"
 
+type Product = {
+  id: number
+  title: string
+  price: number
+  image: string
+  description: string
+}
+
 type Props = {
-  params: Promise<{
+  params: {
     productId: string
-  }>
+  }
+}
+
+async function getProduct(id: number): Promise<Product> {
+  const res = await fetch(
+    `https://fakestoreapi.com/products/${id}`,
+    { cache: "no-store" }
+  )
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch product")
+  }
+
+  return res.json()
 }
 
 export default async function ProductDetail({ params }: Props) {
-  const { productId } = await params
-
-  const product = await ProductsService.getProductById(
-    Number(productId)
-  )
+  const product = await getProduct(Number(params.productId))
 
   const cartProduct = {
     id: product.id,
