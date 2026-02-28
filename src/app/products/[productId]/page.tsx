@@ -18,7 +18,9 @@ type Props = {
 async function getProduct(id: number): Promise<Product> {
   const res = await fetch(
     `https://fakestoreapi.com/products/${id}`,
-    { cache: "no-store" }
+    {
+      next: { revalidate: 60 },
+    }
   )
 
   if (!res.ok) {
