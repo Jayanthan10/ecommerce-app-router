@@ -1,17 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useCart } from "@/app/context/CartContext"
 import { ShoppingCart } from "lucide-react"
-import { Suspense } from "react"
 
-function NavbarContent() {
+export default function Navbar() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const { totalItems } = useCart()
-
-  const currentTitle = searchParams.get("title") || ""
 
   const linkStyle = (path: string) =>
     `transition font-medium ${
@@ -27,24 +23,6 @@ function NavbarContent() {
         <Link href="/" className="text-2xl font-bold text-white tracking-wide">
           Ecom
         </Link>
-
-        {pathname.startsWith("/products") && (
-          <form action="/products" className="flex items-center gap-2 flex-1 mx-12">
-            <input
-              type="text"
-              name="title"
-              defaultValue={currentTitle}
-              placeholder="Search products..."
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md transition"
-            >
-              Search
-            </button>
-          </form>
-        )}
 
         <div className="flex gap-10 items-center text-sm">
           <Link href="/products" className={linkStyle("/products")}>
@@ -73,13 +51,5 @@ function NavbarContent() {
 
       </div>
     </nav>
-  )
-}
-
-export default function Navbar() {
-  return (
-    <Suspense fallback={null}>
-      <NavbarContent />
-    </Suspense>
   )
 }
