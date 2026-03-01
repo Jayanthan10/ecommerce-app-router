@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Image from "next/image"
+import AddToCartButton from "@/app/components/AddToCartButton"
 
 type Product = {
   id: number
@@ -18,32 +19,22 @@ export default function ProductDetailPage() {
 
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
 
   useEffect(() => {
     async function fetchProduct() {
-      try {
-        const res = await fetch(
-          `https://fakestoreapi.com/products/${productId}`
-        )
-
-        if (!res.ok) throw new Error()
-
-        const data = await res.json()
-        setProduct(data)
-      } catch {
-        setError(true)
-      } finally {
-        setLoading(false)
-      }
+      const res = await fetch(
+        `https://fakestoreapi.com/products/${productId}`
+      )
+      const data = await res.json()
+      setProduct(data)
+      setLoading(false)
     }
 
     if (productId) fetchProduct()
   }, [productId])
 
   if (loading) return <p>Loading product...</p>
-  if (error || !product)
-    return <p className="text-red-500">Failed to load product.</p>
+  if (!product) return <p>Product not found.</p>
 
   return (
     <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
@@ -64,9 +55,12 @@ export default function ProductDetailPage() {
           {product.description}
         </p>
 
-        <p className="text-blue-600 text-2xl font-bold">
+        <p className="text-blue-600 text-2xl font-bold mb-6">
           ${product.price}
         </p>
+
+        {/* 🛒 ADD TO CART */}
+        <AddToCartButton product={product} />
       </div>
     </div>
   )
